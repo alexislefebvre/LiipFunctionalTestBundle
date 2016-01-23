@@ -152,12 +152,13 @@ HTML;
         }
         $err_msg .= ":\n";
 
-        $ignores = $this->getContainer()->getParameter('liip_functional_test.html5validation.ignores');
+        $html5validation = $this->getContainer()->getParameter('liip_functional_test.html5validation');
+        $ignores = $html5validation['ignores'];
         /*
          * unfortunately, the bamboo html5 validator.nu gives back an empty "message" about the error with brightcove object, but we have to ignore the error
          * if our local validator.nu instance is fixed, this stuff should go away
          */
-        $ignores_extract = $this->getContainer()->getParameter('liip_functional_test.html5validation.ignores_extract');
+        $ignores_extract = $html5validation['ignores_extract'];
 
         foreach ($res->messages as $row) {
             if ($row->type == 'error') {
