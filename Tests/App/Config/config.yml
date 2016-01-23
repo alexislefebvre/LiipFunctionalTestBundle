@@ -1,13 +1,26 @@
 framework:
+    secret:          secret
+    test: ~
     router: { resource: "%kernel.root_dir%/../routing.yml" }
+    form:            true
+    csrf_protection: true
+    templating:      { engines: ['twig'] }
+    session:
+        # handler_id set to null will use default session handler from php.ini
+        handler_id:  ~
+        storage_id: session.storage.filesystem
+        # https://groups.google.com/forum/#!topic/symfony2/IB-CpMgo5o0
+        name: MOCKSESSID
+    profiler:
+        enabled: true
+        collect: true
 
 # Define all the available parameters in this Bundle
 liip_functional_test:
     cache_sqlite_db: true
     command_verbosity: "very_verbose"
     command_decoration: false
-    query:
-        max_query_count: 5
+    max_query_count: 1
     authentication:
         username: "foobar"
         password: "12341234"
