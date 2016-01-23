@@ -153,7 +153,7 @@ class WebTestCaseConfigTest extends WebTestCase
     }
 
     /**
-     * Log in as the user defined in the Data Fixture.
+     * Log in as the user defined in the Data Fixtures.
      */
     public function testAdminAuthenticationLoginAs()
     {
@@ -201,5 +201,44 @@ class WebTestCaseConfigTest extends WebTestCase
             'Admin',
             $crawler->filter('h2')->text()
         );
+    }
+
+    /**
+     * Log in as the user defined in the Data Fixtures.
+     */
+    public function testUserAuthenticationLoginAs()
+    {
+        $fixtures = $this->loadFixtures(array(
+            'Liip\FunctionalTestBundle\DataFixtures\ORM\LoadUserData',
+        ));
+
+        $this->assertInstanceOf(
+            'Doctrine\Common\DataFixtures\Executor\AbstractExecutor',
+            $fixtures
+        );
+
+        $repository = $fixtures->getReferenceRepository();
+
+        // One query to log in the first user
+        $loginAs = $this->loginAs($repository->getReference('user'),
+            'secured_area');
+
+        $this->assertInstanceOf(
+            'Liip\FunctionalTestBundle\Tests\Test\WebTestCaseConfigTest',
+            $loginAs
+        );
+
+        $this->client = static::makeClient();
+
+        // One query to load the second user
+        $path = '/user/2';
+
+        // There will be 2 queries, in the config the limit is 1,
+        // an Exception will be thrown.
+        $this->setExpectedException(
+            'Liip\FunctionalTestBundle\Exception\AllowedQueriesExceededException'
+        );
+
+        $crawler = $this->client->request('GET', $path);
     }
 }
