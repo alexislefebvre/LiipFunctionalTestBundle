@@ -10,8 +10,6 @@
 
         <parameter key="liip_functional_test.html5validation.ignores_extract" type="collection" />
 
-        <parameter key="liip_functional_test.query.max_query_count">null</parameter>
-
     </parameters>
 
     <services>
@@ -30,7 +28,7 @@
         </service>
 
         <service id="liip_functional_test.query.counter" class="Liip\FunctionalTestBundle\QueryCounter">
-            <argument>%liip_functional_test.query.max_query_count%</argument>
+            <argument>%liip_functional_test.max_query_count%</argument>
             <argument type="service" id="annotation_reader" />
         </service>
     </services>

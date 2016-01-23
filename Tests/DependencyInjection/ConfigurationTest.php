@@ -52,9 +52,7 @@ class ConfigurationTest extends WebTestCase
             array('cache_sqlite_db', false),
             array('command_verbosity', 'normal'),
             array('command_decoration', true),
-            array('query', array(
-                'max_query_count' => null,
-            )),
+            array('max_query_count', null),
             array('authentication', array(
                 'username' => '',
                 'password' => '',
