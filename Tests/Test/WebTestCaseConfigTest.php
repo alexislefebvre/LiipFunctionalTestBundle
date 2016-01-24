@@ -155,8 +155,6 @@ class WebTestCaseConfigTest extends WebTestCase
 
     /**
      * Log in as the user defined in the Data Fixtures.
-     *
-     * @QueryCount(1)
      */
     public function testAdminAuthenticationLoginAs()
     {
@@ -237,6 +235,36 @@ class WebTestCaseConfigTest extends WebTestCase
         $path = '/user/2';
 
         // There will be 2 queries, in the config the limit is 1,
+        // an Exception will be thrown.
+        $this->setExpectedException(
+            'Liip\FunctionalTestBundle\Exception\AllowedQueriesExceededException'
+        );
+
+        $crawler = $this->client->request('GET', $path);
+    }
+
+    /**
+     * Expect an exception due to the annotation QueryCount.
+     *
+     * @QueryCount(0)
+     */
+    public function testAnnotationAndException()
+    {
+        $fixtures = $this->loadFixtures(array(
+            'Liip\FunctionalTestBundle\DataFixtures\ORM\LoadUserData',
+        ));
+
+        $this->assertInstanceOf(
+            'Doctrine\Common\DataFixtures\Executor\AbstractExecutor',
+            $fixtures
+        );
+
+        $this->client = static::makeClient();
+
+        // One query to load the second user
+        $path = '/user/1';
+
+        // There will be 1 query, in the annotation the limit is 1,
         // an Exception will be thrown.
         $this->setExpectedException(
             'Liip\FunctionalTestBundle\Exception\AllowedQueriesExceededException'
