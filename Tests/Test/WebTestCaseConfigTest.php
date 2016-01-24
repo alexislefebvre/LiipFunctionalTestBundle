@@ -11,6 +11,7 @@
 
 namespace Liip\FunctionalTestBundle\Tests\Test;
 
+use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 
 /**
@@ -154,6 +155,8 @@ class WebTestCaseConfigTest extends WebTestCase
 
     /**
      * Log in as the user defined in the Data Fixtures.
+     *
+     * @QueryCount(1)
      */
     public function testAdminAuthenticationLoginAs()
     {
