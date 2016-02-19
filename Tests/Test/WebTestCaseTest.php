@@ -398,6 +398,26 @@ class WebTestCaseTest extends WebTestCase
         $this->assertTrue(
             $user->getEnabled()
         );
+
+        $this->assertStringStartsNotWith(
+            'foo',
+            $user->getName()
+        );
+
+        // Load Data Fixtures with custom loader defined in configuration.
+        $this->loadFixtureFiles(array(
+            '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user_with_custom_provider.yml',
+        ));
+
+        $user = $em->getRepository('LiipFunctionalTestBundle:User')
+            ->findOneBy(array(
+                'id' => 1,
+            ));
+
+        $this->assertStringStartsWith(
+            'foo',
+            $user->getName()
+        );
     }
 
     /**
@@ -425,7 +445,7 @@ class WebTestCaseTest extends WebTestCase
         /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user1 */
         $user1 = $fixtures['id1'];
 
-        $this->assertInternalType('string', $user1->getUsername());
+        $this->assertInternalType('string', $user1->getName());
         $this->assertTrue($user1->getEnabled());
 
         $em = $this->client->getContainer()
