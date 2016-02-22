@@ -402,7 +402,6 @@ class WebTestCaseTest extends WebTestCase
 
     /**
      * Load Data Fixtures with hautelook and custom loader defined in configuration.
-     * @group temp
      */
     public function testLoadFixturesFilesWithHautelookCustomProvider()
     {

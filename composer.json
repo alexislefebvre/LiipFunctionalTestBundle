@@ -26,13 +26,13 @@
         "symfony/assetic-bundle": "~2.3",
         "symfony/monolog-bundle": "~2.4",
         "doctrine/doctrine-fixtures-bundle": "~2.3",
-        "phpunit/phpunit": "4.8.*|5.1.*",
+        "phpunit/phpunit": "4.8.*|~5.1",
         "twig/twig": "~1.12",
         "nelmio/alice": "~1.7|~2.0",
         "jackalope/jackalope-doctrine-dbal": "1.1.*|1.2.*",
         "doctrine/phpcr-odm": "~1.3",
         "doctrine/phpcr-bundle": "~1.3",
-        "hautelook/alice-bundle": "~0.2|~1.2"
+        "hautelook/alice-bundle": "~1.2"
     },
     "suggest": {
         "symfony/framework-bundle": "To use assertStatusCode and assertValidationErrors ~2.5",
