@@ -379,6 +379,33 @@ $fixtures = $this->loadFixtureFiles(array(
 ));
 ```
 
+#### HautelookAliceBundle Faker Providers
+
+This bundle supports faker providers from HautelookAliceBundle, use the [HautelookAliceBundle documentation](https://github.com/hautelook/AliceBundle/blob/1.x/src/Resources/doc/faker-providers.md#faker-providers) in order to define faker providers.
+
+You'll have to add the following line in the `app/AppKernel.php` file:
+
+```php
+<?php
+// app/AppKernel.php
+
+// ...
+class AppKernel extends Kernel
+{
+    public function registerBundles()
+    {
+        // ...
+        if (in_array($this->getEnvironment(), array('dev', 'test'))) {
+            $bundles[] = new Hautelook\AliceBundle\HautelookAliceBundle(),;
+        }
+
+        return $bundles
+    }
+
+    // ...
+}
+```
+
 ### Non-SQLite
 
 The Bundle will not automatically create your schema for you unless you use SQLite.
