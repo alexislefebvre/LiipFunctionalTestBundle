@@ -398,24 +398,82 @@ class WebTestCaseTest extends WebTestCase
         $this->assertTrue(
             $user->getEnabled()
         );
+    }
 
-        $this->assertStringStartsNotWith(
-            'foo',
-            $user->getName()
-        );
+    /**
+     * Load Data Fixtures with hautelook and custom loader defined in configuration.
+     * @group temp
+     */
+    public function testLoadFixturesFilesWithHautelookCustomProvider()
+    {
+        if (!class_exists('Hautelook\AliceBundle\Faker\Provider\ProviderChain')) {
+            self::markTestSkipped('Please use hautelook/alice-bundle >=1.2');
+        }
+
+//        $fixtures = $this->loadFixtureFiles(array(
+//            '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user.yml',
+//        ));
+//
+//        $this->assertInternalType(
+//            'array',
+//            $fixtures
+//        );
+//
+//        // 10 users are loaded
+//        $this->assertCount(
+//            10,
+//            $fixtures
+//        );
+//
+        $em = $this->client->getContainer()
+            ->get('doctrine.orm.entity_manager');
+//
+//        $users = $em->getRepository('LiipFunctionalTestBundle:User')
+//            ->findAll();
+//
+//        $this->assertSame(
+//            10,
+//            count($users)
+//        );
+//
+//
+//        $user = $em->getRepository('LiipFunctionalTestBundle:User')
+//            ->findOneBy(array(
+//                'id' => 1,
+//            ));
+//
+//        $this->assertTrue(
+//            $user->getEnabled()
+//        );
+//
+//        /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
+//        $user = $em->getRepository('LiipFunctionalTestBundle:User')
+//            ->findOneBy(array(
+//                'id' => 10,
+//            ));
+//
+//        $this->assertTrue(
+//            $user->getEnabled()
+//        );
+//
+//        $this->assertStringStartsNotWith(
+//            'foo',
+//            $user->getName()
+//        );
 
         // Load Data Fixtures with custom loader defined in configuration.
         $this->loadFixtureFiles(array(
             '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user_with_custom_provider.yml',
         ));
 
+        /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
         $user = $em->getRepository('LiipFunctionalTestBundle:User')
             ->findOneBy(array(
                 'id' => 1,
             ));
 
-        $this->assertStringStartsWith(
-            'foo',
+        $this->assertSame(
+            'fooa string',
             $user->getName()
         );
     }
@@ -445,7 +503,7 @@ class WebTestCaseTest extends WebTestCase
         /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user1 */
         $user1 = $fixtures['id1'];
 
-        $this->assertInternalType('string', $user1->getName());
+        $this->assertInternalType('string', $user1->getUsername());
         $this->assertTrue($user1->getEnabled());
 
         $em = $this->client->getContainer()
