@@ -381,7 +381,10 @@ $fixtures = $this->loadFixtureFiles(array(
 
 #### HautelookAliceBundle Faker Providers
 
-This bundle supports faker providers from HautelookAliceBundle, use the [HautelookAliceBundle documentation](https://github.com/hautelook/AliceBundle/blob/1.x/src/Resources/doc/faker-providers.md#faker-providers) in order to define faker providers.
+This bundle supports faker providers from HautelookAliceBundle.
+Install the bundle with `composer require --dev hautelook/alice-bundle:~1.2` and use the
+[HautelookAliceBundle documentation](https://github.com/hautelook/AliceBundle/blob/1.x/src/Resources/doc/faker-providers.md#faker-providers)
+in order to define your faker providers.
 
 You'll have to add the following line in the `app/AppKernel.php` file:
 
@@ -405,6 +408,8 @@ class AppKernel extends Kernel
     // ...
 }
 ```
+
+Then you can load fixtures with `$this->loadFixtureFiles(array('@AcmeBundle/…/fixture.yml'));`.
 
 ### Non-SQLite
 
