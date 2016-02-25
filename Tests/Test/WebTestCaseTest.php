@@ -410,23 +410,34 @@ class WebTestCaseTest extends WebTestCase
         }
 
         // Load default Data Fixtures.
-        $fixtures = $this->loadFixtureFiles(array(
+        $this->loadFixtureFiles(array(
             '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user.yml',
         ));
 
-        $this->assertInternalType(
-            'array',
-            $fixtures
-        );
+        // This fails:
+        $this->client = static::makeClient();
+
+        $em = $this->client->getContainer()
+            ->get('doctrine.orm.entity_manager');
+
+        // This works:
+//        $em = $this->getContainer()
+//            ->get('doctrine.orm.entity_manager');
+
+        $users = $em->getRepository('LiipFunctionalTestBundle:User')
+            ->findAll();
 
         // 10 users are loaded
         $this->assertCount(
             10,
-            $fixtures
+            $users
         );
 
         /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
-        $user = $fixtures['id1'];
+        $user = $em->getRepository('LiipFunctionalTestBundle:User')
+            ->findOneBy(array(
+                'id' => 1,
+            ));
 
         // The custom provider has not been used successfully.
         $this->assertStringStartsNotWith(
@@ -435,12 +446,12 @@ class WebTestCaseTest extends WebTestCase
         );
 
         // Load Data Fixtures with custom loader defined in configuration.
-        $fixtures = $this->loadFixtureFiles(array(
+        $this->loadFixtureFiles(array(
             '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user_with_custom_provider.yml',
         ));
 
-        /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
-        $user = $fixtures['id1'];
+        // Needed to fetch new data from database.
+        $em->refresh($user);
 
         // The custom provider "foo" has been loaded and used successfully.
         $this->assertSame(
