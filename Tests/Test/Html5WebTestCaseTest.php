@@ -14,7 +14,7 @@ namespace Liip\FunctionalTestBundle\Tests\Test;
 use Liip\FunctionalTestBundle\Test\Html5WebTestCase;
 
 /**
- * Test mocked methods.
+ * Test methods that are mocked in Html5WebTestCaseMockTest.
  */
 class Html5WebTestCaseTest extends Html5WebTestCase
 {
