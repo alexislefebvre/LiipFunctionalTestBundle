@@ -13,8 +13,32 @@ namespace Liip\FunctionalTestBundle\Tests\Test;
 
 use Liip\FunctionalTestBundle\Test\Html5WebTestCase;
 
+/**
+ * Test mocked methods.
+ */
 class Html5WebTestCaseTest extends Html5WebTestCase
 {
+    public function __construct()
+    {
+        parent::__construct('', array(), '');
+    }
+
+    public function testGetValidationServiceAvailable()
+    {
+        $this->assertInternalType(
+            'bool',
+            $this->getValidationServiceAvailable()
+        );
+    }
+
+    public function testGetHtml5ValidatorServiceUrl()
+    {
+        $this->assertSame(
+            'https://validator.nu/',
+            $this->getHtml5ValidatorServiceUrl()
+        );
+    }
+
     public function testSetHtml5Wrapper()
     {
         $this->setHtml5Wrapper('foo bar');

@@ -14,21 +14,47 @@ namespace Liip\FunctionalTestBundle\Tests\Test;
 /* Used by annotations */
 use Liip\FunctionalTestBundle\Test\Html5WebTestCase;
 
+/*
+ * Use mocked methods instead of inheriting from the class.
+ */
 class Html5WebTestCaseMockTest extends \PHPUnit_Framework_TestCase
 {
-    const testedClass = 'Liip\FunctionalTestBundle\Test\Html5WebTestCase';
+    private function getMockedClass()
+    {
+        return $this->getMockBuilder('Liip\FunctionalTestBundle\Test\Html5WebTestCase')
+            ->disableOriginalConstructor();
+    }
+
+    private function addMethod($mock, $function, $return)
+    {
+        $mock->expects($this->once())
+            ->method($function)
+            ->willReturn($return);
+    }
+
+    private function addMethodGetHtml5ValidatorServiceUrl($mock, $return)
+    {
+        $this->addMethod($mock, 'getHtml5ValidatorServiceUrl', $return);
+    }
+
+    private function addMethodGetValidationServiceAvailable($mock, $return)
+    {
+        $this->addMethod($mock, 'getValidationServiceAvailable', $return);
+    }
+
+    private function addMethodValidateHtml5($mock, $return)
+    {
+        $this->addMethod($mock, 'validateHtml5', $return);
+    }
 
     public function testIsValidationServiceAvailable()
     {
         /** @var Html5WebTestCase $mock */
-        $mock = $this->getMockBuilder(self::testedClass)
-            ->disableOriginalConstructor()
+        $mock = $this->getMockedClass()
             ->setMethods(array('getHtml5ValidatorServiceUrl'))
             ->getMock();
 
-        $mock->expects($this->any())
-            ->method('getHtml5ValidatorServiceUrl')
-            ->willReturn(null);
+        $this->addMethodGetHtml5ValidatorServiceUrl($mock, null);
 
         // The "/" URL is unreachable.
         $this->assertFalse(
@@ -39,14 +65,11 @@ class Html5WebTestCaseMockTest extends \PHPUnit_Framework_TestCase
     public function testValidateHtml5()
     {
         /** @var Html5WebTestCase $mock */
-        $mock = $this->getMockBuilder(self::testedClass)
-            ->disableOriginalConstructor()
+        $mock = $this->getMockedClass()
             ->setMethods(array('getHtml5ValidatorServiceUrl'))
             ->getMock();
 
-        $mock->expects($this->once())
-            ->method('getHtml5ValidatorServiceUrl')
-            ->willReturn(null);
+        $this->addMethodGetHtml5ValidatorServiceUrl($mock, null);
 
         $this->assertFalse(
             $mock->validateHtml5('')
@@ -56,22 +79,17 @@ class Html5WebTestCaseMockTest extends \PHPUnit_Framework_TestCase
     public function testAssertIsValidHtml5()
     {
         /** @var Html5WebTestCase $mock */
-        $mock = $this->getMockBuilder(self::testedClass)
-            ->disableOriginalConstructor()
+        $mock = $this->getMockedClass()
             ->setMethods(array('getValidationServiceAvailable', 'validateHtml5'))
             ->getMock();
 
-        $mock->expects($this->once())
-            ->method('getValidationServiceAvailable')
-            ->willReturn(true);
+        $this->addMethodGetValidationServiceAvailable($mock, true);
 
         // Return successful result from validator.
         $res = new \ArrayObject();
         $res->messages = array();
 
-        $mock->expects($this->once())
-            ->method('validateHtml5')
-            ->willReturn($res);
+        $this->addMethodValidateHtml5($mock, $res);
 
         $mock->assertIsValidHtml5('');
     }
@@ -82,14 +100,11 @@ class Html5WebTestCaseMockTest extends \PHPUnit_Framework_TestCase
     public function testAssertIsValidHtml5Fail()
     {
         /** @var Html5WebTestCase $mock */
-        $mock = $this->getMockBuilder(self::testedClass)
-            ->disableOriginalConstructor()
+        $mock = $this->getMockedClass()
             ->setMethods(array('getValidationServiceAvailable', 'validateHtml5'))
             ->getMock();
 
-        $mock->expects($this->once())
-            ->method('getValidationServiceAvailable')
-            ->willReturn(true);
+        $this->addMethodGetValidationServiceAvailable($mock, true);
 
         // Return error messages from validator.
         $res = new \ArrayObject();
@@ -97,9 +112,7 @@ class Html5WebTestCaseMockTest extends \PHPUnit_Framework_TestCase
             (object) array('type' => 'error', 'message' => 'foo', 'lastLine' => 1),
         );
 
-        $mock->expects($this->once())
-            ->method('validateHtml5')
-            ->willReturn($res);
+        $this->addMethodValidateHtml5($mock, $res);
 
         $mock->assertIsValidHtml5('');
     }
@@ -114,14 +127,11 @@ class Html5WebTestCaseMockTest extends \PHPUnit_Framework_TestCase
             ->will($this->onConsecutiveCalls(array('#foo#'), array('#bar#')));
 
         /** @var Html5WebTestCase $mock */
-        $mock = $this->getMockBuilder(self::testedClass)
-            ->disableOriginalConstructor()
+        $mock = $this->getMockedClass()
             ->setMethods(array('getValidationServiceAvailable', 'validateHtml5', 'getContainer'))
             ->getMock();
 
-        $mock->expects($this->once())
-            ->method('getValidationServiceAvailable')
-            ->willReturn(true);
+        $this->addMethodGetValidationServiceAvailable($mock, true);
 
         // Return error messages from validator.
         $res = new \ArrayObject();
@@ -132,9 +142,7 @@ class Html5WebTestCaseMockTest extends \PHPUnit_Framework_TestCase
             (object) array('type' => 'error', 'message' => 'bar', 'lastLine' => 4, 'extract' => 'bar'),
         );
 
-        $mock->expects($this->once())
-            ->method('validateHtml5')
-            ->willReturn($res);
+        $this->addMethodValidateHtml5($mock, $res);
 
         $mock->expects($this->any())
             ->method('getContainer')
@@ -163,8 +171,7 @@ EOF;
     public function testAssertIsValidHtml5SkipTestServiceNotAvailable()
     {
         /** @var Html5WebTestCase $mock */
-        $mock = $this->getMockBuilder(self::testedClass)
-            ->disableOriginalConstructor()
+        $mock = $this->getMockedClass()
             ->setMethods(
                 array(
                     'getValidationServiceAvailable',
@@ -173,13 +180,9 @@ EOF;
             )
             ->getMock();
 
-        $mock->expects($this->once())
-            ->method('getValidationServiceAvailable')
-            ->willReturn(false);
+        $this->addMethodGetValidationServiceAvailable($mock, false);
 
-        $mock->expects($this->once())
-            ->method('getHtml5ValidatorServiceUrl')
-            ->willReturn('http://localhost/');
+        $this->addMethodGetHtml5ValidatorServiceUrl($mock, 'http://localhost/');
 
         try {
             $mock->assertIsValidHtml5('');
@@ -198,8 +201,7 @@ EOF;
     public function testAssertIsValidHtml5SkipTestServiceReturnFalse()
     {
         /** @var Html5WebTestCase $mock */
-        $mock = $this->getMockBuilder(self::testedClass)
-            ->disableOriginalConstructor()
+        $mock = $this->getMockedClass()
             ->setMethods(
                 array(
                     'getValidationServiceAvailable',
@@ -209,18 +211,12 @@ EOF;
             )
             ->getMock();
 
-        $mock->expects($this->once())
-            ->method('getValidationServiceAvailable')
-            ->willReturn(true);
+        $this->addMethodGetValidationServiceAvailable($mock, true);
 
-        $mock->expects($this->once())
-            ->method('getHtml5ValidatorServiceUrl')
-            ->willReturn('http://localhost/');
+        $this->addMethodGetHtml5ValidatorServiceUrl($mock, 'http://localhost/');
 
         // This will force the test to skip.
-        $mock->expects($this->once())
-            ->method('validateHtml5')
-            ->willReturn(false);
+        $this->addMethodValidateHtml5($mock, false);
 
         try {
             $mock->assertIsValidHtml5('');
@@ -239,22 +235,17 @@ EOF;
     public function testAssertIsValidHtml5Snippet()
     {
         /** @var Html5WebTestCase $mock */
-        $mock = $this->getMockBuilder(self::testedClass)
-            ->disableOriginalConstructor()
+        $mock = $this->getMockedClass()
             ->setMethods(array('getValidationServiceAvailable', 'validateHtml5'))
             ->getMock();
 
-        $mock->expects($this->once())
-            ->method('getValidationServiceAvailable')
-            ->willReturn(true);
+        $this->addMethodGetValidationServiceAvailable($mock, true);
 
         // Return successful result from validator.
         $res = new \ArrayObject();
         $res->messages = array();
 
-        $mock->expects($this->once())
-            ->method('validateHtml5')
-            ->willReturn($res);
+        $this->addMethodValidateHtml5($mock, $res);
 
         $mock->assertIsValidHtml5Snippet('');
     }
@@ -265,14 +256,11 @@ EOF;
     public function testAssertIsValidHtml5SnippetFail()
     {
         /** @var Html5WebTestCase $mock */
-        $mock = $this->getMockBuilder(self::testedClass)
-            ->disableOriginalConstructor()
+        $mock = $this->getMockedClass()
             ->setMethods(array('getValidationServiceAvailable', 'validateHtml5'))
             ->getMock();
 
-        $mock->expects($this->once())
-            ->method('getValidationServiceAvailable')
-            ->willReturn(true);
+        $this->addMethodGetValidationServiceAvailable($mock, true);
 
         // Return error messages from validator.
         $res = new \ArrayObject();
@@ -280,9 +268,7 @@ EOF;
             (object) array('type' => 'error', 'message' => 'foo', 'lastLine' => 1),
         );
 
-        $mock->expects($this->once())
-            ->method('validateHtml5')
-            ->willReturn($res);
+        $this->addMethodValidateHtml5($mock, $res);
 
         $mock->assertIsValidHtml5Snippet('<p>Hello World!</p>');
     }
