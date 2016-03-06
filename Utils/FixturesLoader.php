@@ -388,6 +388,17 @@ class FixturesLoader
 
         $files = $this->locateResources($paths);
 
+        // Check if the Hautelook AliceBundle is registered and if yes, use it instead of Nelmio Alice
+        $hautelookLoaderServiceName = 'hautelook_alice.fixtures.loader';
+        if ($this->container->has($hautelookLoaderServiceName)) {
+            $loaderService = $this->container->get($hautelookLoaderServiceName);
+            $persisterClass = class_exists('Nelmio\Alice\ORM\Doctrine') ?
+                'Nelmio\Alice\ORM\Doctrine' :
+                'Nelmio\Alice\Persister\Doctrine';
+
+            return $loaderService->load(new $persisterClass($om), $files);
+        }
+
         return Fixtures::load($files, $om);
     }
 

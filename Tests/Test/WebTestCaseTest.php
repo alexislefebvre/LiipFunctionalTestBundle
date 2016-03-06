@@ -100,6 +100,66 @@ class WebTestCaseTest extends WebTestCase
     }
 
     /**
+     * Check the failure message returned by assertStatusCode().
+     */
+    public function testAssertStatusCodeFail()
+    {
+        if (!interface_exists('Symfony\Component\Validator\Validator\ValidatorInterface')) {
+            $this->markTestSkipped('The Symfony\Component\Validator\Validator\ValidatorInterface does not exist');
+        }
+
+        $this->loadFixtures(array());
+
+        $path = '/';
+
+        $this->client->request('GET', $path);
+
+        try {
+            $this->assertStatusCode(-1, $this->client);
+        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+            $this->assertStringStartsWith(
+                'HTTP/1.1 200 OK',
+                $e->getMessage()
+            );
+
+            $this->assertStringEndsWith(
+                'Failed asserting that 200 matches expected -1.',
+                $e->getMessage()
+            );
+
+            return;
+        }
+
+        $this->fail('Test failed.');
+    }
+
+    /**
+     * Check the failure message returned by assertStatusCode().
+     */
+    public function testAssertStatusCodeException()
+    {
+        $this->loadFixtures(array());
+
+        $path = '/user/2';
+
+        $this->client->request('GET', $path);
+
+        try {
+            $this->assertStatusCode(-1, $this->client);
+        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+            $string = <<<'EOF'
+No user found
+Failed asserting that 404 matches expected -1.
+EOF;
+            $this->assertSame($string, $e->getMessage());
+
+            return;
+        }
+
+        $this->fail('Test failed.');
+    }
+
+    /**
      * @depends testIndex
      */
     public function testIndexIsSuccesful()
@@ -173,6 +233,38 @@ class WebTestCaseTest extends WebTestCase
         $this->assertStatusCode(404, $this->client);
 
         $this->isSuccessful($this->client->getResponse(), false);
+    }
+
+    /**
+     * Throw an Exception in the try/catch block and check the failure message
+     * returned by assertStatusCode().
+     */
+    public function testIsSuccessfulException()
+    {
+        $this->loadFixtures(array());
+
+        $response = $this->getMockBuilder('Symfony\Component\HttpFoundation\Response')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getContent'))
+            ->getMock();
+
+        $response->expects($this->any())
+            ->method('getContent')
+            ->will($this->throwException(new \Exception('foo')));
+
+        try {
+            $this->isSuccessful($response);
+        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+            $string = <<<'EOF'
+The Response was not successful: foo
+Failed asserting that false is true.
+EOF;
+            $this->assertSame($string, $e->getMessage());
+
+            return;
+        }
+
+        $this->fail('Test failed.');
     }
 
     /**
@@ -379,6 +471,134 @@ class WebTestCaseTest extends WebTestCase
     }
 
     /**
+     * Test if there is a call-out to the service if defined.
+     */
+    public function testHautelookServiceUsage()
+    {
+        $hautelookLoaderMock = $this->getMockBuilder('\Hautelook\AliceBundle\Alice\DataFixtures\Loader')
+            ->disableOriginalConstructor()
+            ->setMethods(array('load'))
+            ->getMock();
+        $hautelookLoaderMock->expects(self::once())->method('load');
+
+        $this->getContainer()->set('hautelook_alice.fixtures.loader', $hautelookLoaderMock);
+
+        $this->loadFixtureFiles(array(
+            '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user.yml',
+        ));
+    }
+
+    /**
+     * Use hautelook.
+     */
+    public function testLoadFixturesFilesWithHautelook()
+    {
+        if (!class_exists('Hautelook\AliceBundle\Faker\Provider\ProviderChain')) {
+            self::markTestSkipped('Please use hautelook/alice-bundle >=1.2');
+        }
+
+        $fakerProcessorChain = new \Hautelook\AliceBundle\Faker\Provider\ProviderChain(array());
+        $aliceProcessorChain = new \Hautelook\AliceBundle\Alice\ProcessorChain(array());
+        $fixtureLoader = new \Hautelook\AliceBundle\Alice\DataFixtures\Fixtures\Loader('en_US', $fakerProcessorChain);
+        $loader = new \Hautelook\AliceBundle\Alice\DataFixtures\Loader($fixtureLoader, $aliceProcessorChain, true, 10);
+        $this->getContainer()->set('hautelook_alice.fixtures.loader', $loader);
+
+        $fixtures = $this->loadFixtureFiles(array(
+            '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user.yml',
+        ));
+
+        $this->assertInternalType(
+            'array',
+            $fixtures
+        );
+
+        // 10 users are loaded
+        $this->assertCount(
+            10,
+            $fixtures
+        );
+
+        $em = $this->client->getContainer()
+            ->get('doctrine.orm.entity_manager');
+
+        $users = $em->getRepository('LiipFunctionalTestBundle:User')
+            ->findAll();
+
+        $this->assertSame(
+            10,
+            count($users)
+        );
+
+        /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
+        $user = $em->getRepository('LiipFunctionalTestBundle:User')
+            ->findOneBy(array(
+                'id' => 1,
+            ));
+
+        $this->assertTrue(
+            $user->getEnabled()
+        );
+
+        $user = $em->getRepository('LiipFunctionalTestBundle:User')
+            ->findOneBy(array(
+                'id' => 10,
+            ));
+
+        $this->assertTrue(
+            $user->getEnabled()
+        );
+    }
+
+    /**
+     * Load Data Fixtures with hautelook and custom loader defined in configuration.
+     */
+    public function testLoadFixturesFilesWithHautelookCustomProvider()
+    {
+        if (!class_exists('Hautelook\AliceBundle\Faker\Provider\ProviderChain')) {
+            self::markTestSkipped('Please use hautelook/alice-bundle >=1.2');
+        }
+
+        // Load default Data Fixtures.
+        $fixtures = $this->loadFixtureFiles(array(
+            '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user.yml',
+        ));
+
+        $this->assertInternalType(
+            'array',
+            $fixtures
+        );
+
+        // 10 users are loaded
+        $this->assertCount(
+            10,
+            $fixtures
+        );
+
+        /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
+        $user = $fixtures['id1'];
+
+        // The custom provider has not been used successfully.
+        $this->assertStringStartsNotWith(
+            'foo',
+            $user->getName()
+        );
+
+        // Load Data Fixtures with custom loader defined in configuration.
+        $fixtures = $this->loadFixtureFiles(array(
+            '@LiipFunctionalTestBundle/Tests/App/DataFixtures/ORM/user_with_custom_provider.yml',
+        ));
+
+        /** @var \Liip\FunctionalTestBundle\Tests\App\Entity\User $user */
+        $user = $fixtures['id1'];
+
+        // The custom provider "foo" has been loaded and used successfully.
+        $this->assertSame(
+            'fooa string',
+            $user->getName()
+        );
+    }
+
+    /**
      * Use nelmio/alice with full path to the file.
      */
     public function testLoadFixturesFilesPaths()
@@ -520,6 +740,8 @@ class WebTestCaseTest extends WebTestCase
 
     /**
      * @depends testForm
+     *
+     * @expectedException \PHPUnit_Framework_ExpectationFailedException
      */
     public function testFormWithException()
     {
@@ -540,13 +762,44 @@ class WebTestCaseTest extends WebTestCase
 
         $this->assertStatusCode(200, $this->client);
 
+        $this->assertValidationErrors(array(''), $this->client->getContainer());
+    }
+
+    /**
+     * Check the failure message returned by assertStatusCode()
+     * when an invalid form is submitted.
+     */
+    public function testFormWithExceptionAssertStatusCode()
+    {
+        if (!interface_exists('Symfony\Component\Validator\Validator\ValidatorInterface')) {
+            $this->markTestSkipped('The Symfony\Component\Validator\Validator\ValidatorInterface does not exist');
+        }
+
+        $this->loadFixtures(array());
+
+        $path = '/form';
+
+        $crawler = $this->client->request('GET', $path);
+
+        $form = $crawler->selectButton('Submit')->form();
+
+        $this->client->submit($form);
+
         try {
-            $this->assertValidationErrors(array(''), $this->client->getContainer());
-        } catch (\PHPUnit_Framework_ExpectationFailedException $expected) {
+            $this->assertStatusCode(-1, $this->client);
+        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+            $string = <<<'EOF'
+Unexpected validation errors:
++ children[name].data: This value should not be blank.
+
+Failed asserting that 200 matches expected -1.
+EOF;
+            $this->assertSame($string, $e->getMessage());
+
             return;
         }
 
-        $this->fail('PHPUnit_Framework_ExpectationFailedException has not been raised');
+        $this->fail('Test failed.');
     }
 
     /**
