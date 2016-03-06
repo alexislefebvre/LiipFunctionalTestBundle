@@ -500,6 +500,7 @@ abstract class WebTestCase extends BaseWebTestCase
         $container = $this->getContainer();
         /** @var ManagerRegistry $registry */
         $registry = $container->get($registryName);
+        /** @var ObjectManager $om */
         $om = $registry->getManager($omName);
         $type = $registry->getName();
 
@@ -617,11 +618,18 @@ abstract class WebTestCase extends BaseWebTestCase
     public function loadFixtureFiles(array $paths = array(), $append = false, $omName = null, $registryName = 'doctrine')
     {
         if (!class_exists('Nelmio\Alice\Fixtures')) {
+            // This class is available during tests, no exception will be thrown.
+            // @codeCoverageIgnoreStart
             throw new \BadMethodCallException('nelmio/alice should be installed to use this method.');
+            // @codeCoverageIgnoreEnd
         }
 
+        /** @var ContainerInterface $container */
+        $container = $this->getContainer();
+
         /** @var ManagerRegistry $registry */
-        $registry = $this->getContainer()->get($registryName);
+        $registry = $container->get($registryName);
+
         /** @var EntityManager $om */
         $om = $registry->getManager($omName);
 
@@ -630,6 +638,17 @@ abstract class WebTestCase extends BaseWebTestCase
         }
 
         $files = $this->locateResources($paths);
+
+        // Check if the Hautelook AliceBundle is registered and if yes, use it instead of Nelmio Alice
+        $hautelookLoaderServiceName = 'hautelook_alice.fixtures.loader';
+        if ($container->has($hautelookLoaderServiceName)) {
+            $loaderService = $container->get($hautelookLoaderServiceName);
+            $persisterClass = class_exists('Nelmio\Alice\ORM\Doctrine') ?
+                'Nelmio\Alice\ORM\Doctrine' :
+                'Nelmio\Alice\Persister\Doctrine';
+
+            return $loaderService->load(new $persisterClass($om), $files);
+        }
 
         return Fixtures::load($files, $om);
     }
@@ -702,7 +721,10 @@ abstract class WebTestCase extends BaseWebTestCase
         $loaderClass = class_exists('Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader')
             ? 'Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader'
             : (class_exists('Doctrine\Bundle\FixturesBundle\Common\DataFixtures\Loader')
+                // This class is not available during tests.
+                // @codeCoverageIgnoreStart
                 ? 'Doctrine\Bundle\FixturesBundle\Common\DataFixtures\Loader'
+                // @codeCoverageIgnoreEnd
                 : 'Symfony\Bundle\DoctrineFixturesBundle\Common\DataFixtures\Loader');
 
         $loader = new $loaderClass($container);
@@ -843,7 +865,7 @@ abstract class WebTestCase extends BaseWebTestCase
      *
      * @param string $route    The name of the route
      * @param array  $params   Set of parameters
-     * @param bool   $absolute
+     * @param int    $absolute
      *
      * @return string
      */
@@ -929,6 +951,7 @@ abstract class WebTestCase extends BaseWebTestCase
 
     /**
      * @param UserInterface $user
+     * @param string        $firewallName
      *
      * @return WebTestCase
      */

@@ -7,7 +7,7 @@
  *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
- * 
+ *
  * @see http://www.whitewashing.de/2012/02/25/symfony2_controller_testing.html
  */
 
@@ -28,6 +28,7 @@ class AppKernel extends Kernel
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
             new Liip\FunctionalTestBundle\LiipFunctionalTestBundle(),
+            new Hautelook\AliceBundle\HautelookAliceBundle(),
         );
 
         return $bundles;
