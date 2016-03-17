@@ -17,7 +17,8 @@ class RunParatestCommand extends ContainerAwareCommand
     private $output;
     private $process = 5;
     private $testDbPath;
-    private $phpunit = './bin/phpunit';
+    // Relative path to phpunit.
+    private $phpunit = '../vendor/bin/phpunit';
 
     /**
      * Configuration of the command.
@@ -68,11 +69,20 @@ class RunParatestCommand extends ContainerAwareCommand
     {
         $this->output = $output;
         $this->prepare();
-        if (is_file('vendor/bin/paratest') !== true) {
+
+        $paratestPath = __DIR__.'/../vendor/bin/paratest';
+
+        if (is_file($paratestPath) !== true) {
             $this->output->writeln('Error : Install paratest first');
         } else {
             $this->output->writeln('Done...Running test.');
-            $runProcess = new Process('vendor/bin/paratest -c phpunit.xml.dist --phpunit '.$this->phpunit.' --runner WrapRunner  -p '.$this->process);
+            $runProcess = new Process($paratestPath.' '.
+                '-c '.__DIR__.'/../phpunit.xml.dist '.
+                '--phpunit '.__DIR__.'/'.$this->phpunit.' '.
+                '--runner WrapRunner  -p '.$this->process.' '.
+                // Don't launch all the tests, that may create an infinite
+                // loop if this current file is tested.
+                __DIR__.'/../Tests/Test/');
             $runProcess->run(function ($type, $buffer) {
                 echo $buffer;
             });
