@@ -38,11 +38,14 @@ class RunParatestCommand extends ContainerAwareCommand
 
         $this->process = (!empty($this->configuration['process'])) ? $paratestCfg['process'] : $this->process;
         $this->phpunit = (!empty($this->configuration['phpunit'])) ? $paratestCfg['phpunit'] : $this->phpunit;
-        $this->testDbPath = $this->getContainer()->get('kernel')->getRootDir();
+        $this->testDbPath = $this->getContainer()->getParameter('kernel.cache_dir').'/';
+
         $this->output->writeln("Cleaning old dbs in $this->testDbPath ...");
-        $createDirProcess = new Process('mkdir -p '.$this->testDbPath.'/cache/test/');
-        $createDirProcess->run();
-        $cleanProcess = new Process("rm -fr $this->testDbPath/cache/test/dbTest.db $this->testDbPath/cache/test/dbTest*.db*");
+        if (!is_dir($this->testDbPath)) {
+            mkdir($this->testDbPath, 0755, true);
+        }
+
+        $cleanProcess = new Process("rm -fr $this->testDbPath/dbTest.db $this->testDbPath/dbTest*.db*");
         $cleanProcess->run();
         $this->output->writeln("Creating Schema in $this->testDbPath ...");
         $createProcess = new Process('php app/console doctrine:schema:create --env=test');
@@ -54,8 +57,10 @@ class RunParatestCommand extends ContainerAwareCommand
 
         $this->output->writeln('Initial schema populated, duplicating....');
         for ($a = 0; $a < $this->process; ++$a) {
-            $test = new Process("cp $this->testDbPath/cache/test/dbTest.db ".$this->testDbPath."/cache/test/dbTest$a.db");
+            $test = new Process("cp $this->testDbPath/dbTest.db ".$this->testDbPath."test/dbTest$a.db");
             $test->run();
+//            copy($this->testDbPath.'dbTest.db',
+//                $this->testDbPath.'dbTest'.$a.'.db');
         }
     }
 
@@ -83,8 +88,8 @@ class RunParatestCommand extends ContainerAwareCommand
                 // Don't launch all the tests, that may create an infinite
                 // loop if this current file is tested.
                 __DIR__.'/../Tests/Test/');
-            $runProcess->run(function ($type, $buffer) {
-                echo $buffer;
+            $runProcess->run(function ($type, $buffer) use ($output) {
+                $output->write($buffer);
             });
         }
     }
