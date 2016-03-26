@@ -54,6 +54,14 @@ class WebTestCaseConfigMysqlTest extends WebTestCase
     }
 
     /**
+     * Avoid errors with paratest.
+     */
+    public function testAssertTrue()
+    {
+        $this->assertTrue(true);
+    }
+
+    /**
      * Data fixtures.
      *
      * @group mysql
