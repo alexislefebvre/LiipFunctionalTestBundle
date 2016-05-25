@@ -3,6 +3,18 @@
 ![Scrutinizer][Scrutinizer Coverage Image]][Scrutinizer]
 [![SensioLabsInsight][SensioLabsInsight Image]][SensioLabsInsight]
 
+Table of contents:
+
+- [Installation](#installation)
+- [Basic usage and methods](#basic-usage)
+- [Command tests](#command-tests)
+- [Database and fixtures](#database-tests)
+- [Create an already logged client](#create-an-already-logged-client)
+- [HTML5 Validator](#html5-validator)
+- [Query Counter](#query-counter)
+- [Caveats](#caveats)
+- [paratest](paratest.md)
+
 Introduction
 ============
 
@@ -45,7 +57,7 @@ Installation
                 $bundles[] = new Liip\FunctionalTestBundle\LiipFunctionalTestBundle();
             }
 
-            return $bundles
+            return $bundles;
         }
 
         // ...
@@ -172,7 +184,7 @@ $this->assertSame(
 Get the content of an URL:
 
 ```php
-$crawler = $this->fetchContent('/contact');
+$content = $this->fetchContent('/contact');
 
 // `filter()` can't be used since the output is HTML code, check the content directly
 $this->assertContains(
@@ -378,6 +390,38 @@ $fixtures = $this->loadFixtureFiles(array(
     '../../DataFixtures/ORM/YetAnotherObjectData.yml',
 ));
 ```
+
+#### HautelookAliceBundle Faker Providers
+
+This bundle supports faker providers from HautelookAliceBundle.
+Install the bundle with `composer require --dev hautelook/alice-bundle:~1.2` and use the
+[HautelookAliceBundle documentation](https://github.com/hautelook/AliceBundle/blob/1.x/src/Resources/doc/faker-providers.md#faker-providers)
+in order to define your faker providers.
+
+You'll have to add the following line in the `app/AppKernel.php` file:
+
+```php
+<?php
+// app/AppKernel.php
+
+// ...
+class AppKernel extends Kernel
+{
+    public function registerBundles()
+    {
+        // ...
+        if (in_array($this->getEnvironment(), array('dev', 'test'))) {
+            $bundles[] = new Hautelook\AliceBundle\HautelookAliceBundle(),;
+        }
+
+        return $bundles
+    }
+
+    // ...
+}
+```
+
+Then you can load fixtures with `$this->loadFixtureFiles(array('@AcmeBundle/…/fixture.yml'));`.
 
 ### Non-SQLite
 
