@@ -38,6 +38,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Nelmio\Alice\Fixtures;
+use Liip\FunctionalTestBundle\Utils\HttpAssertions;
 
 /**
  * @author Lea Haensenberger
@@ -791,8 +792,7 @@ abstract class WebTestCase extends BaseWebTestCase
      */
     public function isSuccessful(Response $response, $success = true, $type = 'text/html')
     {
-        $this->getContainer()->get('liip_functional_test.http_assertions')
-            ->isSuccessful($response, $success, $type);
+        HttpAssertions::isSuccessful($response, $success, $type);
     }
 
     /**
@@ -865,8 +865,7 @@ abstract class WebTestCase extends BaseWebTestCase
      */
     public function assertStatusCode($expectedStatusCode, Client $client)
     {
-        $this->getContainer()->get('liip_functional_test.http_assertions')
-            ->assertStatusCode($expectedStatusCode, $client);
+        HttpAssertions::assertStatusCode($expectedStatusCode, $client);
     }
 
     /**
@@ -878,7 +877,6 @@ abstract class WebTestCase extends BaseWebTestCase
      */
     public function assertValidationErrors(array $expected, ContainerInterface $container)
     {
-        $this->getContainer()->get('liip_functional_test.http_assertions')
-            ->assertValidationErrors($expected, $container);
+        HttpAssertions::assertValidationErrors($expected, $container);
     }
 }

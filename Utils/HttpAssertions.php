@@ -26,7 +26,7 @@ class HttpAssertions extends \PHPUnit_Framework_TestCase
      * @param bool     $success  to define whether the response is expected to be successful
      * @param string   $type
      */
-    public function isSuccessful(Response $response, $success = true, $type = 'text/html')
+    public static function isSuccessful(Response $response, $success = true, $type = 'text/html')
     {
         try {
             $crawler = new Crawler();
@@ -41,9 +41,9 @@ class HttpAssertions extends \PHPUnit_Framework_TestCase
         }
 
         if ($success) {
-            $this->assertTrue($response->isSuccessful(), 'The Response was not successful: '.$title);
+            self::assertTrue($response->isSuccessful(), 'The Response was not successful: '.$title);
         } else {
-            $this->assertFalse($response->isSuccessful(), 'The Response was successful: '.$title);
+            self::assertFalse($response->isSuccessful(), 'The Response was successful: '.$title);
         }
     }
 
@@ -55,7 +55,7 @@ class HttpAssertions extends \PHPUnit_Framework_TestCase
      * @param $expectedStatusCode
      * @param Client $client
      */
-    public function assertStatusCode($expectedStatusCode, Client $client)
+    public static function assertStatusCode($expectedStatusCode, Client $client)
     {
         $helpfulErrorMessage = null;
 
@@ -84,7 +84,7 @@ class HttpAssertions extends \PHPUnit_Framework_TestCase
      * @param array              $expected  A flat array of field names
      * @param ContainerInterface $container
      */
-    public function assertValidationErrors(array $expected, ContainerInterface $container)
+    public static function assertValidationErrors(array $expected, ContainerInterface $container)
     {
         self::assertThat(
             $container->get('liip_functional_test.validator')->getLastErrors(),
