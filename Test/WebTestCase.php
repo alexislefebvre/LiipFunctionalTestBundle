@@ -280,6 +280,73 @@ abstract class WebTestCase extends BaseWebTestCase
     }
 
     /**
+     * Get metadatas from cache.
+     *
+     * @param ObjectManager $om
+     * @param string        $omName The name of object manager to use
+     */
+    private function getCachedMetadatas(ObjectManager $om, $omName)
+    {
+        if (!isset(self::$cachedMetadatas[$omName])) {
+            self::$cachedMetadatas[$omName] = $om->getMetadataFactory()->getAllMetadata();
+            usort(self::$cachedMetadatas[$omName], function ($a, $b) {
+                return strcmp($a->name, $b->name);
+            });
+        }
+
+        return self::$cachedMetadatas[$omName];
+    }
+
+    /**
+     * Copy SQLite backup file.
+     *
+     * @param ObjectManager            $om
+     * @param string                   $executorClass
+     * @param ProxyReferenceRepository $referenceRepository
+     * @param string                   $backup              Path of the source file.
+     * @param string                   $name                Path of the destination file.
+     */
+    private function copySqliteBackup($om, $executorClass,
+                                      $referenceRepository, $backup, $name)
+    {
+        $this->preFixtureRestore($om, $referenceRepository);
+
+        copy($backup, $name);
+
+        $executor = new $executorClass($om);
+        $executor->setReferenceRepository($referenceRepository);
+        $executor->getReferenceRepository()->load($backup);
+
+        $this->postFixtureRestore();
+
+        return $executor;
+    }
+
+    /**
+     * Purge database.
+     *
+     * @param ObjectManager            $om
+     * @param array                    $metadatas
+     * @param string                   $executorClass
+     * @param ProxyReferenceRepository $referenceRepository
+     */
+    private function createSqliteSchema(ObjectManager $om,
+                                        $metadatas, $executorClass,
+                                        ProxyReferenceRepository $referenceRepository)
+    {
+        // TODO: handle case when using persistent connections. Fail loudly?
+        $schemaTool = new SchemaTool($om);
+        $schemaTool->dropDatabase();
+        if (!empty($metadatas)) {
+            $schemaTool->createSchema($metadatas);
+        }
+        $this->postFixtureSetup();
+
+        $executor = new $executorClass($om);
+        $executor->setReferenceRepository($referenceRepository);
+    }
+
+    /**
      * Set the database to the provided fixtures.
      *
      * Drops the current database and then loads fixtures using the specified
@@ -323,14 +390,7 @@ abstract class WebTestCase extends BaseWebTestCase
             $connection = $om->getConnection();
             if ($connection->getDriver() instanceof SqliteDriver) {
                 $name = FixturesLoader::getNameParameter($connection);
-
-                if (!isset(self::$cachedMetadatas[$omName])) {
-                    self::$cachedMetadatas[$omName] = $om->getMetadataFactory()->getAllMetadata();
-                    usort(self::$cachedMetadatas[$omName], function ($a, $b) {
-                        return strcmp($a->name, $b->name);
-                    });
-                }
-                $metadatas = self::$cachedMetadatas[$omName];
+                $metadatas = self::getCachedMetadatas($om, $omName);
 
                 if ($container->getParameter('liip_functional_test.cache_sqlite_db')) {
                     $backup = $container->getParameter('kernel.cache_dir').'/test_'.md5(serialize($metadatas).serialize($classNames)).'.db';
@@ -338,30 +398,16 @@ abstract class WebTestCase extends BaseWebTestCase
                         $om->flush();
                         $om->clear();
 
-                        $this->preFixtureRestore($om, $referenceRepository);
-
-                        copy($backup, $name);
-
-                        $executor = new $executorClass($om);
-                        $executor->setReferenceRepository($referenceRepository);
-                        $executor->getReferenceRepository()->load($backup);
-
-                        $this->postFixtureRestore();
+                        $executor = $this->copySqliteBackup($om,
+                            $executorClass, $referenceRepository,
+                            $backup, $name);
 
                         return $executor;
                     }
                 }
 
-                // TODO: handle case when using persistent connections. Fail loudly?
-                $schemaTool = new SchemaTool($om);
-                $schemaTool->dropDatabase();
-                if (!empty($metadatas)) {
-                    $schemaTool->createSchema($metadatas);
-                }
-                $this->postFixtureSetup();
-
-                $executor = new $executorClass($om);
-                $executor->setReferenceRepository($referenceRepository);
+                $this->createSqliteSchema($om, $metadatas,
+                    $executorClass, $referenceRepository);
             }
         }
 
