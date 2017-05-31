@@ -12,6 +12,7 @@
 namespace Liip\FunctionalTestBundle\Tests\Test;
 
 use Liip\FunctionalTestBundle\Test\WebTestCase;
+use PHPUnit\Framework\AssertionFailedError;
 
 class WebTestCaseTest extends WebTestCase
 {
@@ -116,7 +117,7 @@ class WebTestCaseTest extends WebTestCase
 
         try {
             $this->assertStatusCode(-1, $this->client);
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+        } catch (AssertionFailedError $e) {
             $this->assertStringStartsWith(
                 'HTTP/1.1 200 OK',
                 $e->getMessage()
@@ -146,7 +147,7 @@ class WebTestCaseTest extends WebTestCase
 
         try {
             $this->assertStatusCode(-1, $this->client);
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+        } catch (AssertionFailedError $e) {
             $string = <<<'EOF'
 No user found
 Failed asserting that 404 matches expected -1.
@@ -254,7 +255,7 @@ EOF;
 
         try {
             $this->isSuccessful($response);
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+        } catch (AssertionFailedError $e) {
             $string = <<<'EOF'
 The Response was not successful: foo
 Failed asserting that false is true.
@@ -611,7 +612,7 @@ EOF;
     /**
      * @depends testForm
      *
-     * @expectedException \PHPUnit_Framework_ExpectationFailedException
+     * @expectedException \PHPUnit\Framework\ExpectationFailedException
      */
     public function testFormWithException()
     {
@@ -657,7 +658,7 @@ EOF;
 
         try {
             $this->assertStatusCode(-1, $this->client);
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+        } catch (AssertionFailedError $e) {
             $string = <<<'EOF'
 Unexpected validation errors:
 + children[name].data: This value should not be blank.

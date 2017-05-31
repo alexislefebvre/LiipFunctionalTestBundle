@@ -1,3 +1,5 @@
+dist: trusty
+
 language: php
 
 php:
@@ -39,7 +41,7 @@ install:
 
 # http://jubianchi.fr/how-to-test-your-symfony2-project-with-behat-on-travisci.htm
 before_script:
-  - mysql -e 'CREATE DATABASE liip;'
+  - mysql -u root -e 'CREATE DATABASE liip;'
 
 # In phpunit.xml.dist, tests annotated with "@group mysql" are excluded,
 # revert this.
