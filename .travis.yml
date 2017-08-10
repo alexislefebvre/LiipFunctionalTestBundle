@@ -28,12 +28,15 @@ matrix:
       env: SYMFONY_VERSION="3.2.*"
     - php: 7.1
       env: SYMFONY_VERSION="3.3.*"
+    - php: 7.1
+      env: SYMFONY_VERSION="3.3.*" NELMIO_ALICE_3="true"
   fast_finish: true
 
 before_install:
   - if [[ $TRAVIS_PHP_VERSION != '7.0' && $TRAVIS_PHP_VERSION != '7.1' ]]; then phpenv config-rm xdebug.ini; fi
   - echo "memory_limit = -1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - if [ "$SYMFONY_VERSION" != "" ]; then composer require --no-update symfony/symfony=$SYMFONY_VERSION; fi
+  - if [ "$NELMIO_ALICE_3" != "" ]; then composer require --no-update --dev "theofidry/alice-data-fixtures:^1.0@beta" "nelmio/alice:^3.0@rc"; fi
 
 install:
   # use "update" instead of "install" since it allows using the "--prefer-lowest" option

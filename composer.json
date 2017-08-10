@@ -30,7 +30,7 @@
         "doctrine/doctrine-fixtures-bundle": "~2.3",
         "phpunit/phpunit": "^4.8.35|^5.7|^6.1",
         "twig/twig": "~1.12|~2.0",
-        "nelmio/alice": "~1.7|~2.0",
+        "nelmio/alice": "~1.7|~2.0|~3.0",
         "jackalope/jackalope-doctrine-dbal": "1.1.*|1.2.*",
         "doctrine/phpcr-odm": "~1.3",
         "doctrine/phpcr-bundle": "~1.3",
@@ -45,7 +45,8 @@
         "doctrine/dbal": "Required when using the fixture loading functionality with an ORM and SQLite",
         "nelmio/alice": "Required when using loadFixtureFiles functionality",
         "hautelook/alice-bundle" : "Required when using loadFixtureFiles functionality with custom providers",
-        "brianium/paratest": "Required when using paratest to parallelize tests"
+        "brianium/paratest": "Required when using paratest to parallelize tests",
+        "theofidry/alice-data-fixtures:^1.0@beta and nelmio/alice:^3.0@rc": "Required for nelmio/alice 3"
     },
     "autoload": {
         "psr-4": {
