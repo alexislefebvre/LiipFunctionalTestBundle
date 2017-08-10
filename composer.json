@@ -45,7 +45,8 @@
         "doctrine/dbal": "Required when using the fixture loading functionality with an ORM and SQLite",
         "nelmio/alice": "Required when using loadFixtureFiles functionality",
         "hautelook/alice-bundle" : "Required when using loadFixtureFiles functionality with custom providers",
-        "brianium/paratest": "Required when using paratest to parallelize tests"
+        "brianium/paratest": "Required when using paratest to parallelize tests",
+        "theofidry/alice-data-fixtures:^1.0@beta and nelmio/alice:^3.0@rc": "Required for nelmio/alice 3"
     },
     "autoload": {
         "psr-4": {
