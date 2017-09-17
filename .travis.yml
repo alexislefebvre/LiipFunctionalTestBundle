@@ -33,7 +33,7 @@ matrix:
 before_install:
   - if [[ $TRAVIS_PHP_VERSION != '7.0' && $TRAVIS_PHP_VERSION != '7.1' && $TRAVIS_PHP_VERSION != 'hhvm' ]]; then phpenv config-rm xdebug.ini; fi
   - if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then echo "memory_limit = -1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini; fi
-  - if [ "$TEST_NELMIO_ALICE_BETA" != "" ]; then composer require --no-update --dev "hautelook/alice-bundle:^2.0@beta" "theofidry/alice-data-fixtures:^1.0@beta" "theofidry/alice-data-fixtures:^1.0@beta" "nelmio/alice:^3.0@rc"; fi
+  - if [ "$TEST_NELMIO_ALICE_BETA" != "" ]; then composer require --no-update --dev "hautelook/alice-bundle:^2.0@beta" "theofidry/alice-data-fixtures:^1.0@beta" "theofidry/alice-data-fixtures:^1.0@beta" "nelmio/alice:^3.0"; fi
   - if [ "$SYMFONY_VERSION" != "" ]; then composer require --no-update symfony/symfony=$SYMFONY_VERSION; fi
 
 install:
