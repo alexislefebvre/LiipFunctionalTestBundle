@@ -14,10 +14,13 @@ declare(strict_types=1);
 namespace Liip\FunctionalTestBundle\Tests\Test;
 
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Liip\FunctionalTestBundle\Utils\FixturesLoader;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class FixturesTest extends WebTestCase
 {
+    use FixturesLoader;
+
     /** @var \Symfony\Bundle\FrameworkBundle\Client client */
     private $client = null;
 
