@@ -15,7 +15,7 @@ namespace Liip\FunctionalTestBundle\Tests\Test;
 
 use Doctrine\Bundle\PHPCRBundle\DoctrinePHPCRBundle;
 use Doctrine\ORM\Tools\SchemaTool;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Liip\FunctionalTestBundle\Tests\AppConfigPhpcr\AppConfigPhpcrKernel;
 
 /**

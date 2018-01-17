@@ -101,7 +101,7 @@ encountered by the Client object.
 If you are expecting validation errors, test them with `assertValidationErrors`.
 
 ```php
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class MyControllerTest extends WebTestCase
 {
@@ -233,7 +233,7 @@ and ```debug```. The default value is ```normal```.
 
 You can also configure this on a per-test basis:
 ```php
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class MyTestCase extends WebTestCase {
 
@@ -255,7 +255,7 @@ The default value is true.
 
 You can also configure this on a per-test basis:
 ```php
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class MyTestCase extends WebTestCase {
 
@@ -319,7 +319,7 @@ Tips for Fixture Loading Tests
  3. Load your Doctrine fixtures in your tests:
 
     ```php
-    use Liip\FunctionalTestBundle\Test\WebTestCase;
+    use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
     class MyControllerTest extends WebTestCase
     {
@@ -344,7 +344,7 @@ Tips for Fixture Loading Tests
     `loadFixtures` without any argument.
 
     ```php
-    use Liip\FunctionalTestBundle\Test\WebTestCase;
+    use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
     class MyControllerTest extends WebTestCase
     {
@@ -364,7 +364,7 @@ Tips for Fixture Loading Tests
     to the `setExcludedDoctrineTables` method before loading the fixtures.
 
     ```php
-    use Liip\FunctionalTestBundle\Test\WebTestCase;
+    use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
     class MyControllerTest extends WebTestCase
     {
@@ -383,7 +383,7 @@ Tips for Fixture Loading Tests
     specify the service id of the registry manager:
 
     ```php
-    use Liip\FunctionalTestBundle\Test\WebTestCase;
+    use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
     class MyControllerTest extends WebTestCase
     {
@@ -457,7 +457,7 @@ automatically, you'll need to do that yourself. For example, you could write a
 
 ```php
 use Doctrine\ORM\Tools\SchemaTool;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class AccountControllerTest extends WebTestCase
 {
@@ -713,7 +713,7 @@ Caveats
    `@IgnoreAnnotation` annotation:
 
    ```php
-   use Liip\FunctionalTestBundle\Test\WebTestCase;
+   use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
    /**
     * @IgnoreAnnotation("dataProvider")

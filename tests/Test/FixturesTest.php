@@ -14,11 +14,13 @@ declare(strict_types=1);
 namespace Liip\FunctionalTestBundle\Tests\Test;
 
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
-use PHPUnit\Framework\AssertionFailedError;
+use Liip\FunctionalTestBundle\Utils\FixturesLoader;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class WebTestCaseTest extends WebTestCase
+class FixturesTest extends WebTestCase
 {
+    use FixturesLoader;
+
     /** @var \Symfony\Bundle\FrameworkBundle\Client client */
     private $client = null;
 
@@ -27,249 +29,6 @@ class WebTestCaseTest extends WebTestCase
         $this->client = static::makeClient();
     }
 
-    /**
-     * Call methods from the parent class.
-     */
-    public function testGetContainer(): void
-    {
-        $this->assertInstanceOf(
-            'Symfony\Component\DependencyInjection\ContainerInterface',
-            $this->getContainer()
-        );
-    }
-
-    public function testMakeClient(): void
-    {
-        $this->assertInstanceOf(
-            'Symfony\Bundle\FrameworkBundle\Client',
-            static::makeClient()
-        );
-    }
-
-    public function testGetUrl(): void
-    {
-        $path = $this->getUrl(
-            'liipfunctionaltestbundle_user',
-            [
-                'userId' => 1,
-                'get_parameter' => 'abc',
-            ]
-        );
-
-        $this->assertInternalType('string', $path);
-
-        $this->assertSame($path, '/user/1?get_parameter=abc');
-    }
-
-    /**
-     * Call methods from Symfony to ensure the Controller works.
-     */
-    public function testIndex(): void
-    {
-        $path = '/';
-
-        /** @var \Symfony\Component\DomCrawler\Crawler $crawler */
-        $crawler = $this->client->request('GET', $path);
-
-        $this->assertSame(1,
-            $crawler->filter('html > body')->count());
-
-        $this->assertSame(
-            'Not logged in.',
-            $crawler->filter('p#user')->text()
-        );
-
-        $this->assertSame(
-            'LiipFunctionalTestBundle',
-            $crawler->filter('h1')->text()
-        );
-    }
-
-    /**
-     * Call methods from the parent class.
-     */
-
-    /**
-     * @depends testIndex
-     */
-    public function testIndexAssertStatusCode(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/';
-
-        $this->client->request('GET', $path);
-
-        $this->assertStatusCode(200, $this->client);
-    }
-
-    /**
-     * Check the failure message returned by assertStatusCode().
-     */
-    public function testAssertStatusCodeFail(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/';
-
-        $this->client->request('GET', $path);
-
-        try {
-            $this->assertStatusCode(-1, $this->client);
-        } catch (AssertionFailedError $e) {
-            $this->assertStringStartsWith(
-                'HTTP/1.1 200 OK',
-                $e->getMessage()
-            );
-
-            $this->assertStringEndsWith(
-                'Failed asserting that 200 matches expected -1.',
-                $e->getMessage()
-            );
-
-            return;
-        }
-
-        $this->fail('Test failed.');
-    }
-
-    /**
-     * Check the failure message returned by assertStatusCode().
-     */
-    public function testAssertStatusCodeException(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/user/2';
-
-        $this->client->request('GET', $path);
-
-        try {
-            $this->assertStatusCode(-1, $this->client);
-        } catch (AssertionFailedError $e) {
-            $string = <<<'EOF'
-No user found
-Failed asserting that 404 matches expected -1.
-EOF;
-            $this->assertSame($string, $e->getMessage());
-
-            return;
-        }
-
-        $this->fail('Test failed.');
-    }
-
-    /**
-     * @depends testIndex
-     */
-    public function testIndexIsSuccesful(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/';
-
-        $this->client->request('GET', $path);
-
-        $this->isSuccessful($this->client->getResponse());
-    }
-
-    /**
-     * @depends testIndex
-     */
-    public function testIndexFetchCrawler(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/';
-
-        $crawler = $this->fetchCrawler($path);
-
-        $this->assertInstanceOf(
-            'Symfony\Component\DomCrawler\Crawler',
-            $crawler
-        );
-
-        $this->assertSame(1,
-            $crawler->filter('html > body')->count());
-
-        $this->assertSame(
-            'Not logged in.',
-            $crawler->filter('p#user')->text()
-        );
-
-        $this->assertSame(
-            'LiipFunctionalTestBundle',
-            $crawler->filter('h1')->text()
-        );
-    }
-
-    /**
-     * @depends testIndex
-     */
-    public function testIndexFetchContent(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/';
-
-        $content = $this->fetchContent($path);
-
-        $this->assertInternalType('string', $content);
-
-        $this->assertContains(
-            '<h1>LiipFunctionalTestBundle</h1>',
-            $content
-        );
-    }
-
-    public function test404Error(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/missing_page';
-
-        $this->client->request('GET', $path);
-
-        $this->assertStatusCode(404, $this->client);
-
-        $this->isSuccessful($this->client->getResponse(), false);
-    }
-
-    /**
-     * Throw an Exception in the try/catch block and check the failure message
-     * returned by assertStatusCode().
-     */
-    public function testIsSuccessfulException(): void
-    {
-        $this->loadFixtures([]);
-
-        $response = $this->getMockBuilder('Symfony\Component\HttpFoundation\Response')
-            ->disableOriginalConstructor()
-            ->setMethods(['getContent'])
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getContent')
-            ->will($this->throwException(new \Exception('foo')));
-
-        try {
-            $this->isSuccessful($response);
-        } catch (AssertionFailedError $e) {
-            $string = <<<'EOF'
-The Response was not successful: foo
-Failed asserting that false is true.
-EOF;
-            $this->assertSame($string, $e->getMessage());
-
-            return;
-        }
-
-        $this->fail('Test failed.');
-    }
-
-    /**
-     * Data fixtures.
-     */
     public function testLoadEmptyFixtures(): void
     {
         $fixtures = $this->loadFixtures([]);
@@ -317,7 +76,7 @@ EOF;
         $this->assertTrue($user1->getEnabled());
 
         // Load data from database
-        $em = $this->client->getContainer()
+        $em = $this->getContainer()
             ->get('doctrine.orm.entity_manager');
 
         $users = $em->getRepository('LiipFunctionalTestBundle:User')
@@ -359,7 +118,7 @@ EOF;
             $fixtures
         );
 
-        $em = $this->client->getContainer()
+        $em = $this->getContainer()
             ->get('doctrine.orm.entity_manager');
 
         $users = $em->getRepository('LiipFunctionalTestBundle:User')
@@ -392,7 +151,7 @@ EOF;
             $fixtures
         );
 
-        $em = $this->client->getContainer()
+        $em = $this->getContainer()
             ->get('doctrine.orm.entity_manager');
 
         $users = $em->getRepository('LiipFunctionalTestBundle:User')
@@ -470,7 +229,7 @@ EOF;
     public function testLoadFixturesFilesPaths(): void
     {
         $fixtures = $this->loadFixtureFiles([
-            $this->client->getContainer()->get('kernel')->locateResource(
+            $this->getContainer()->get('kernel')->locateResource(
                 '@AcmeBundle/App/DataFixtures/ORM/user.yml'
             ),
         ]);
@@ -492,7 +251,7 @@ EOF;
         $this->assertInternalType('string', $user1->getUsername());
         $this->assertTrue($user1->getEnabled());
 
-        $em = $this->client->getContainer()
+        $em = $this->getContainer()
             ->get('doctrine.orm.entity_manager');
 
         $users = $em->getRepository('LiipFunctionalTestBundle:User')
@@ -534,7 +293,7 @@ EOF;
             $fixtures
         );
 
-        $em = $this->client->getContainer()
+        $em = $this->getContainer()
             ->get('doctrine.orm.entity_manager');
 
         $users = $em->getRepository('LiipFunctionalTestBundle:User')
@@ -608,121 +367,5 @@ EOF;
             'Email: foo@bar.com',
             $crawler->filter('div#content p')->eq(1)->text()
         );
-    }
-
-    /**
-     * Form.
-     */
-    public function testForm(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/form';
-
-        $crawler = $this->client->request('GET', $path);
-
-        $this->assertStatusCode(200, $this->client);
-
-        $form = $crawler->selectButton('Submit')->form();
-        $crawler = $this->client->submit($form);
-
-        $this->assertStatusCode(200, $this->client);
-
-        $this->assertValidationErrors(['children[name].data'], $this->client->getContainer());
-
-        // Try again with the fields filled out.
-        $form = $crawler->selectButton('Submit')->form();
-        $form->setValues(['form[name]' => 'foo bar']);
-        $crawler = $this->client->submit($form);
-
-        $this->assertStatusCode(200, $this->client);
-
-        $this->assertContains(
-            'Name submitted.',
-            $crawler->filter('div.flash-notice')->text()
-        );
-    }
-
-    /**
-     * @depends testForm
-     *
-     * @expectedException \PHPUnit\Framework\ExpectationFailedException
-     */
-    public function testFormWithException(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/form';
-
-        $crawler = $this->client->request('GET', $path);
-
-        $this->assertStatusCode(200, $this->client);
-
-        $form = $crawler->selectButton('Submit')->form();
-        $this->client->submit($form);
-
-        $this->assertStatusCode(200, $this->client);
-
-        $this->assertValidationErrors([''], $this->client->getContainer());
-    }
-
-    /**
-     * Check the failure message returned by assertStatusCode()
-     * when an invalid form is submitted.
-     */
-    public function testFormWithExceptionAssertStatusCode(): void
-    {
-        $this->loadFixtures([]);
-
-        $path = '/form';
-
-        $crawler = $this->client->request('GET', $path);
-
-        $form = $crawler->selectButton('Submit')->form();
-
-        $this->client->submit($form);
-
-        try {
-            $this->assertStatusCode(-1, $this->client);
-        } catch (AssertionFailedError $e) {
-            $string = <<<'EOF'
-Unexpected validation errors:
-+ children[name].data: This value should not be blank.
-
-Failed asserting that 200 matches expected -1.
-EOF;
-            $this->assertSame($string, $e->getMessage());
-
-            return;
-        }
-
-        $this->fail('Test failed.');
-    }
-
-    /**
-     * Call isSuccessful() with "application/json" content type.
-     */
-    public function testJsonIsSuccesful(): void
-    {
-        $this->loadFixtures([]);
-
-        $this->client = static::makeClient();
-
-        $path = '/json';
-
-        $this->client->request('GET', $path);
-
-        $this->isSuccessful(
-            $this->client->getResponse(),
-            true,
-            'application/json'
-        );
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->client = null;
     }
 }
