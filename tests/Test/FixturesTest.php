@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Liip\FunctionalTestBundle\Tests\Test;
 
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class FixturesTest extends WebTestCase
 {

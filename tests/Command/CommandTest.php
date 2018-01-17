@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Liip\FunctionalTestBundle\Tests\Command;
 
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Kernel;
 

@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Liip\FunctionalTestBundle\Tests\Test;
 
 use Doctrine\ORM\Tools\SchemaTool;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Liip\FunctionalTestBundle\Tests\AppConfigMysql\AppConfigMysqlKernel;
 
 /**

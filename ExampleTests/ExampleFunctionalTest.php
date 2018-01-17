@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Liip\FooBundle\Tests;
 
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * @author Lukas Smith

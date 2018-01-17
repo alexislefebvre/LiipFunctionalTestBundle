@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Liip\FunctionalTestBundle\Tests\Test;
 
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class HelpersTest extends WebTestCase
 {

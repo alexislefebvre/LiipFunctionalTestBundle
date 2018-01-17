@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Liip\FunctionalTestBundle\Tests\Test;
 
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Liip\FunctionalTestBundle\Tests\AppConfig\AppConfigKernel;
 
 /**
